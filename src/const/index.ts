@@ -1,0 +1,1 @@
+export { sTable } from './s-table'

@@ -1,0 +1,42 @@
+.wrapper {
+    display: flex;
+    /* width: 500px; */
+    align-items: center;
+}
+
+.header,
+.payload {
+    margin: 10px 15px 0 0;
+    font-size: 24px;
+    margin-right: 15px;
+}
+
+.header {
+    width: 200px;
+}
+
+.payload {
+    text-align: start;
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+}
+
+.button {
+    font-size: 30px;
+    background: black;
+    color: white;
+    border-radius: 15px;
+    margin-left: auto;
+    height: fit-content;
+    padding: 10px;
+}
+
+.button:active {
+    border: 1px solid black;
+    background-color: white;
+    color: black;
+}
+
+.button:hover {
+    cursor: pointer;
+}
