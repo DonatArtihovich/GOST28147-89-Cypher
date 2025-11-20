@@ -13,13 +13,15 @@ export const PayloadItem = ({ header, payload }: PayloadItemProps) => {
     return (
         <div className={cls.wrapper}>
             <p className={cls.header}>{header}</p>
-            <pre className={cls.payload}>{payload}</pre>
-            <button
-                className={cls.button}
-                onClick={onCopyClick}
-            >
-                Copy
-            </button>
+            <div className={cls.innerWrapper}>
+                <pre className={cls.payload}>{payload}</pre>
+                <button
+                    className={cls.button}
+                    onClick={onCopyClick}
+                >
+                    Copy
+                </button>
+            </div>
         </div>
     )
 }

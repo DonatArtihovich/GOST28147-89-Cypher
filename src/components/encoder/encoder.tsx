@@ -18,7 +18,7 @@ export const Encoder = ({ payload, encodeKey }: EncoderProps) => {
         .replaceAll(' ', '')
     const cypherKey = 0b00110000001100000011000000110000;
 
-    const n1Xored = xorStep(parseInt(n1, 2), cypherKey).toString(2);
+    const n1Xored = xorStep(parseInt(n1, 2), cypherKey).toString(2).padStart(32, '0');
     const n1XoredDivided = sDivision(n1Xored);
     const n1XoredDividedSTable = n1XoredDivided
         .map((s, i) => sTable[i][parseInt(s, 2) >>> 0]);
@@ -102,7 +102,7 @@ export const Encoder = ({ payload, encodeKey }: EncoderProps) => {
             />
             <PayloadItem
                 header='XOR со старшей частью N2:'
-                payload={shifted11.join('') + '\n' + n2 + '\n' + n2Xored}
+                payload={shifted11.join('') + '\n' + n2 + '\n' + n2Xored.padStart(32, '0')}
             />
             <PayloadItem
                 header='Сдвиг по цепочке, результат:'
