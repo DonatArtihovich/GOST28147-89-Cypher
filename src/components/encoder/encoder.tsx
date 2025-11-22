@@ -7,7 +7,8 @@ import cls from './index.module.css'
 type EncoderProps = EncodeData;
 
 export const Encoder = ({ payload, encodeKey }: EncoderProps) => {
-    const payloadBinaryString = convertToBinaryString(payload);
+    const payloadBinaryString = convertToBinaryString(payload).trim();
+    const fullKey = convertToEncodeKeyString(encodeKey).trim();
 
     const n1 = payloadBinaryString
         .slice(0, Math.ceil(payloadBinaryString.length / 2))
@@ -35,7 +36,7 @@ export const Encoder = ({ payload, encodeKey }: EncoderProps) => {
             <PayloadItem header='Шифруемое сообщение кодом: ' payload={convertToBinaryString(payload)} />
 
             <PayloadItem header='Ключ шифрования: ' payload={encodeKey.toString()} />
-            <PayloadItem header='Ключ шифрования целиком: ' payload={convertToEncodeKeyString(encodeKey)} />
+            <PayloadItem header='Ключ шифрования целиком: ' payload={fullKey} />
 
             <h2 className={cls.stepHeader}>Шаг 1</h2>
             <PayloadItem
@@ -48,30 +49,16 @@ export const Encoder = ({ payload, encodeKey }: EncoderProps) => {
             />
 
             <h2 className={cls.stepHeader}>Шаг 2 </h2>
-            <PayloadItem
-                header='Первый блок 0000 разбиваем на восемь 32-битных блоков'
-                payload={
-                    transform4chars('0000')
-                }
-            />
-            <PayloadItem
-                header={`Второй блок 00${encodeKey} разбиваем на восемь 32-битных блоков`}
-                payload={
-                    transform4chars(`00${encodeKey}`)
-                }
-            />
-            <PayloadItem
-                header='Третий блок 0000 разбиваем на восемь 32-битных блоков'
-                payload={
-                    transform4chars('0000')
-                }
-            />
-            <PayloadItem
-                header={`Четвертый блок 00${encodeKey} разбиваем на восемь 32-битных блоков`}
-                payload={
-                    transform4chars(`00${encodeKey}`)
-                }
-            />
+            <ul className={cls.blocksList}>
+                {fullKey.split(' ').map((keyBlock, i) => (
+                    <li>
+                        <PayloadItem
+                            header={`${i + 1} блок ${keyBlock} разбиваем на восемь 32-битных блоков`}
+                            payload={transform4chars(keyBlock)}
+                        />
+                    </li>
+                ))}
+            </ul>
 
             <h2 className={cls.stepHeader}>Шаг 3 </h2>
             <PayloadItem
