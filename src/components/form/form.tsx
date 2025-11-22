@@ -4,7 +4,7 @@ import { Encoder } from '../encoder';
 
 export const Form = () => {
     const [lastname, setLastname] = useState<EncodeData['payload']>('');
-    const [variant, setVariant] = useState<EncodeData['encodeKey']>(0)
+    const [variant, setVariant] = useState<EncodeData['encodeKey']>();
     const [data, setData] = useState<EncodeData>({ payload: '', encodeKey: 0 });
     const [error, setError] = useState<string>('');
 
