@@ -1,14 +1,27 @@
-import { decode } from 'windows-1251';
-import { sTable } from '../../const';
-import { convertToBinaryString, convertToEncodeKeyString, rightShift11, sDivision, transform4chars, xorStep } from '../../utils';
+import {
+    convertToBinaryString,
+    convertToEncodeKeyString,
+    sDivision,
+    transform4chars,
+    xorIter
+} from '../../utils';
 import { PayloadItem } from '../payload-item';
 import cls from './index.module.css'
+import { XorStep } from '../xor-step/xor-step';
+import { decode } from 'windows-1251';
 
 type EncoderProps = EncodeData;
 
-export const Encoder = ({ payload, encodeKey }: EncoderProps) => {
+export const Encoder = ({ payload, encodeKey, itersCount }: EncoderProps) => {
     const payloadBinaryString = convertToBinaryString(payload).trim();
     const fullKey = convertToEncodeKeyString(encodeKey).trim();
+
+    const cypherKey = 0b00110000001100000011000000110000;
+    const iterResults: string[] = Array.from({ length: itersCount })
+        .reduce((prev: string[], _) => {
+            const res = xorIter(prev.at(-1) as string, cypherKey);
+            return [...prev, res.n2Xored + res.n1];
+        }, [payloadBinaryString]);
 
     const n1 = payloadBinaryString
         .slice(0, Math.ceil(payloadBinaryString.length / 2))
@@ -17,18 +30,6 @@ export const Encoder = ({ payload, encodeKey }: EncoderProps) => {
     const n2 = payloadBinaryString
         .slice(Math.ceil(payloadBinaryString.length / 2))
         .replaceAll(' ', '')
-    const cypherKey = 0b00110000001100000011000000110000;
-
-    const n1Xored = xorStep(parseInt(n1, 2), cypherKey).toString(2).padStart(32, '0');
-    const n1XoredDivided = sDivision(n1Xored);
-    const n1XoredDividedSTable = n1XoredDivided
-        .map((s, i) => sTable[i][parseInt(s, 2) >>> 0]);
-    const n1XoredDividedSTableBinary = n1XoredDividedSTable
-        .map(n => n
-            .toString(2)
-            .padStart(4, '0'));
-    const shifted11 = sDivision(rightShift11(n1XoredDividedSTableBinary.join('')));
-    const n2Xored = xorStep(parseInt(shifted11.join(''), 2), parseInt(n2, 2)).toString(2);
 
     return (
         <div className={cls.wrapper}>
@@ -51,7 +52,7 @@ export const Encoder = ({ payload, encodeKey }: EncoderProps) => {
             <h2 className={cls.stepHeader}>Шаг 2 </h2>
             <ul className={cls.blocksList}>
                 {fullKey.split(' ').map((keyBlock, i) => (
-                    <li>
+                    <li key={`block${i}`}>
                         <PayloadItem
                             header={`${i + 1} блок ${keyBlock} разбиваем на восемь 32-битных блоков`}
                             payload={transform4chars(keyBlock)}
@@ -60,56 +61,34 @@ export const Encoder = ({ payload, encodeKey }: EncoderProps) => {
                 ))}
             </ul>
 
-            <h2 className={cls.stepHeader}>Шаг 3 </h2>
-            <PayloadItem
-                header='XOR N(1) и X(1)'
-                payload={n1 + '\n' + cypherKey.toString(2).padStart(32, '0') + '\n' + n1Xored}
-            />
+            <ul className={cls.blocksList}>
+                {Array.from({ length: itersCount })
+                    .map((_, index) => index)
+                    .map((i) => (
+                        <XorStep
+                            key={`iter${i}`}
+                            input={iterResults.at(i)}
+                            cypherKey={cypherKey}
+                            stepStart={2 + 2 * i}
+                        />
+                    ))}
+            </ul>
 
-            <h2 className={cls.stepHeader}>Шаг 4 </h2>
-            <PayloadItem header='Делим на S-блоки' payload={n1XoredDivided.join('|')} />
-            <PayloadItem
-                header='Переводим S-блоки в десятичную систему: '
-                payload={
-                    n1XoredDivided
-                        .map(s => parseInt(s, 2) >>> 0)
-                        .join(' ')}
-            />
-            <PayloadItem
-                header='Преобразуем по таблице, результат:'
-                payload={n1XoredDividedSTable.join(' ')}
-            />
-            <PayloadItem
-                header='Переводим:'
-                payload={n1XoredDividedSTableBinary.join('|')}
-            />
-            <PayloadItem
-                header='Сдвигаем на 11 бит влево:'
-                payload={shifted11.join('|')}
-            />
-            <PayloadItem
-                header='XOR со старшей частью N2:'
-                payload={shifted11.join('') + '\n' + n2 + '\n' + n2Xored.padStart(32, '0')}
-            />
-            <PayloadItem
-                header='Сдвиг по цепочке, результат:'
-                payload={sDivision(n2Xored + n1, 8).join(' ')}
-            />
             <PayloadItem
                 header='В десятичной системе:'
-                payload={sDivision(n2Xored + n1, 8).map(s => parseInt(s, 2).toString(10)).join(' ')}
+                payload={sDivision(iterResults.at(-1) as string, 8)
+                    .map(s => parseInt(s, 2).toString(10)).join(' ')}
             />
             <PayloadItem
                 header='По таблице ASCII:'
                 payload={decode(
                     new Uint8Array(
-                        sDivision(n2Xored + n1, 8)
+                        sDivision(iterResults.at(-1) as string, 8)
                             .map(s => parseInt(s, 2))) as unknown as string)
                     .split('')
                     .join(' ')
                 }
             />
-
         </div>
     )
 }

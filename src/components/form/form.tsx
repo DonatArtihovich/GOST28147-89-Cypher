@@ -4,8 +4,9 @@ import { Encoder } from '../encoder';
 
 export const Form = () => {
     const [lastname, setLastname] = useState<EncodeData['payload']>('');
-    const [variant, setVariant] = useState<EncodeData['encodeKey']>();
-    const [data, setData] = useState<EncodeData>({ payload: '', encodeKey: 0 });
+    const [variant, setVariant] = useState<EncodeData['encodeKey']>(0);
+    const [itersCount, setItersCount] = useState<number>(1);
+    const [data, setData] = useState<EncodeData>({ payload: '', encodeKey: 0, itersCount: 1 });
     const [error, setError] = useState<string>('');
 
     const onSubmit = (e: FormEvent) => {
@@ -25,6 +26,7 @@ export const Form = () => {
         setData({
             payload: lastname.trim().padEnd(8, '0').slice(0, 8),
             encodeKey: variant,
+            itersCount,
         })
     }
 
@@ -54,6 +56,18 @@ export const Form = () => {
                         className={cls.input}
                         onChange={(e) => setLastname(e.target.value)}
                         value={lastname}
+                    />
+                </label>
+                <label htmlFor="iter">
+                    <p className={cls.labelText}>Количество итераций:</p>
+                    <input
+                        id='iter'
+                        type='number'
+                        max={32}
+                        min={1}
+                        className={cls.input}
+                        onChange={(e) => setItersCount(+e.target.value)}
+                        value={itersCount}
                     />
                 </label>
 
