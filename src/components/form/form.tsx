@@ -1,33 +1,16 @@
 import { useState, type FormEvent } from 'react'
 import cls from './form.module.css'
-import { Encoder } from '../encoder';
+import { Generator } from '../generator';
 
 export const Form = () => {
-    const [lastname, setLastname] = useState<EncodeData['payload']>('');
-    const [variant, setVariant] = useState<EncodeData['encodeKey']>(0);
-    const [itersCount, setItersCount] = useState<number>(1);
-    const [data, setData] = useState<EncodeData>({ payload: '', encodeKey: 0, itersCount: 1 });
-    const [error, setError] = useState<string>('');
+    const [numberP, setNumberP] = useState<number>(37);
+    const [numberQ, setNumberQ] = useState<number>(41);
+
+    const [data, setData] = useState<null | { p: number; q: number; }>(null);
 
     const onSubmit = (e: FormEvent) => {
         e.preventDefault();
-
-        if (!variant || variant < 0 || variant > 40) {
-            setError('Введен некорректный номер варианта.');
-            return;
-        }
-
-        if (!lastname.trim()) {
-            setError('Введите корректную фамилию');
-            return;
-        }
-
-        setError('');
-        setData({
-            payload: lastname.trim().padEnd(8, '0').slice(0, 8),
-            encodeKey: variant,
-            itersCount,
-        })
+        setData({ p: numberP, q: numberQ });
     }
 
     return (
@@ -36,42 +19,27 @@ export const Form = () => {
                 onSubmit={onSubmit}
                 className={cls.form}
             >
-                <label htmlFor="variant">
-                    <p className={cls.labelText}>Номер в журнале:</p>
+                <label htmlFor="number_p">
+                    <p className={cls.labelText}>Простое число P:</p>
                     <input
-                        id='variant'
+                        id='number_p'
                         type='number'
                         className={cls.input}
-                        onChange={(e) => setVariant(+e.target.value)}
-                        value={variant}
+                        onChange={(e) => setNumberP(+e.target.value)}
+                        value={numberP}
                     />
                 </label>
 
-                <label htmlFor="lastname">
-                    <p className={cls.labelText}>Фамилия:</p>
+                <label htmlFor="number_q">
+                    <p className={cls.labelText}>Простое число Q:</p>
                     <input
-                        id='lastname'
-                        type='text'
-                        max={8}
-                        className={cls.input}
-                        onChange={(e) => setLastname(e.target.value)}
-                        value={lastname}
-                    />
-                </label>
-                <label htmlFor="iter">
-                    <p className={cls.labelText}>Количество итераций:</p>
-                    <input
-                        id='iter'
+                        id='number_q'
                         type='number'
-                        max={32}
-                        min={1}
                         className={cls.input}
-                        onChange={(e) => setItersCount(+e.target.value)}
-                        value={itersCount}
+                        onChange={(e) => setNumberQ(+e.target.value)}
+                        value={numberQ}
                     />
                 </label>
-
-                <p className={cls.error}>{error}</p>
 
                 <button
                     className={cls.button}
@@ -80,7 +48,11 @@ export const Form = () => {
                     Генерировать
                 </button>
             </form>
-            {data.payload && <Encoder {...data} />}
+            {data &&
+                <Generator
+                    p={data.p}
+                    q={data.q}
+                />}
         </div>
     )
 }
