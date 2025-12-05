@@ -14,7 +14,7 @@ export const generateV3 = (
 export const generateV0 = (v3: number[]) => v3[Math.floor(Math.random() * v3.length)]
 
 export const calculateVm1 = (v0: number, n: number) => {
-    for (let i = 0; i < 1_000_000; i++) {
+    for (let i = 1; i < 1_000_000; i++) {
         if (((i * v0) % n) === 1) {
             return i;
         }

@@ -8,3 +8,7 @@ export {
     generateR,
     calculateY
 } from './steps'
+
+export { transpose } from './matrix'
+
+export { sample, relativelyPrime } from './rand'

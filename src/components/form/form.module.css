@@ -7,6 +7,30 @@
     box-sizing: border-box;
 }
 
+.parallelLabel {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+}
+
+.parallelLabel:hover {
+    cursor: pointer;
+}
+
+.parallelLabel p {
+    margin: 0;
+}
+
+.checkboxInput {
+    display: none;
+}
+
+.checkboxImage {
+    width: 35px;
+}
+
 .form {
     display: flex;
     flex-direction: column;
