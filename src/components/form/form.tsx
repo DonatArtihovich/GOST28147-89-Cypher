@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import cls from './form.module.css'
 import { Generator } from '../generator';
 import { ParallelGenerator } from '../parallel-generator';
@@ -8,6 +8,8 @@ import tickUnchecked from '../../assets/images/checkmark-unchecked.svg'
 export const Form = () => {
     const [numberP, setNumberP] = useState<number>(37);
     const [numberQ, setNumberQ] = useState<number>(41);
+    const [numberK, setNumberK] = useState<number>(5);
+    const [submittedK, setSubmittedK] = useState<number>(5);
     const [isParallel, setIsParallel] = useState<boolean>(false);
 
     const [data, setData] = useState<null | { p: number; q: number; }>(null);
@@ -15,11 +17,8 @@ export const Form = () => {
     const onSubmit = (e: FormEvent) => {
         e.preventDefault();
         setData({ p: numberP, q: numberQ });
+        setSubmittedK(numberK);
     }
-
-    useEffect(() => {
-        console.log('is parallel: ', isParallel);
-    }, [isParallel]);
 
     return (
         <div className={cls.wrapper}>
@@ -63,6 +62,19 @@ export const Form = () => {
                     />
                 </label>
 
+                {isParallel && <label htmlFor="number_k">
+                    <p className={cls.labelText}>Длина ключа K:</p>
+                    <input
+                        id='number_k'
+                        type='number'
+                        min={5}
+                        className={cls.input}
+                        onChange={(e) => setNumberK(+e.target.value)}
+                        value={numberK}
+                    />
+                </label>
+                }
+
                 <button
                     className={cls.button}
                     type='submit'
@@ -71,7 +83,7 @@ export const Form = () => {
                 </button>
             </form>
             {data && (isParallel
-                ? <ParallelGenerator {...data} />
+                ? <ParallelGenerator {...data} k={submittedK} />
                 : <Generator {...data} />
             )}
         </div>

@@ -1,31 +1,27 @@
-import { relativelyPrime, sample, transpose } from "../../utils";
+import { useMemo } from "react";
+import { calculateVm1, generateV1, relativelyPrime, sample, transpose } from "../../utils";
 import { PayloadItem } from "../payload-item";
 import cls from './index.module.css'
 
 type ParallelGeneratorProps = {
     q: number;
     p: number;
+    k: number;
 }
 
-export const ParallelGenerator = ({ q, p }: ParallelGeneratorProps) => {
+export const ParallelGenerator = ({ q, p, k }: ParallelGeneratorProps) => {
     const n = q * p;
-    const v = sample([1140, 21, 374, 1322, 1232], 5); //[1140, 21, 374, 1322, 1232]; TODO
-    const vm1 = v.map(v => {
-        for (let i = 0; i < n; i++) {
-            if (v * i % n === 1) {
-                return i;
-            }
-        }
-        return 0;
-    });
+    const v = useMemo(() => sample(generateV1(n), k, (v) => calculateVm1(v, n) !== 0),
+        [q, p, k]); //sample([1140, 21, 374, 1322, 1232], 5); //[1140, 21, 374, 1322, 1232]; TODO
+    const vm1 = v.map(v => calculateVm1(v, n));
     const s = vm1.map(v => Math.round(Math.sqrt(v)));
     const transposed = transpose([v, vm1, s]);
 
-    const r = relativelyPrime(n);
+    const r = useMemo(() => relativelyPrime(n), [q, p, k]);
 
     const b = Math.floor(Math.random() * (2 ** s.length))
         .toString(2)
-        .padStart(5, '0')
+        .padStart(k, '0')
         .split('');
 
     const y = (r * (s.filter((_, i) => +b[i]).length
@@ -96,7 +92,7 @@ export const ParallelGenerator = ({ q, p }: ParallelGeneratorProps) => {
                 formatting
             />
 
-            <h2 className={cls.stepHeader}>{(r ** 2) % n} = {x2}, значит проверка прошла успешно</h2>
+            <h2 className={cls.stepHeader}>Если {(r ** 2) % n} = {x2}, значит проверка прошла успешно</h2>
         </div>
     )
 }

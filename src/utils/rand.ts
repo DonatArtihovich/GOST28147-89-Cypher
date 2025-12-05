@@ -1,10 +1,10 @@
-export const sample = <T>(arr: T[], count: number): T[] => {
+export const sample = <T>(arr: T[], count: number, cb = (_: T) => true): T[] => {
     const indexes: number[] = [];
 
     while (indexes.length < count) {
         const num = Math.floor(Math.random() * arr.length);
 
-        if (indexes.indexOf(num) != -1) {
+        if (indexes.indexOf(num) != -1 || !cb(arr[num])) {
             continue;
         }
 
